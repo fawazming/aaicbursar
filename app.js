@@ -29,13 +29,13 @@ const CURSIVE_FONTS = [
 ];
 
 /* -------- Calibrated field map ----------------------------------------- */
-/* Global text transform: bigger, bolder, nudged right by 30px. */
-const TEXT = { scale: 1.2, bold: true, padLeft: 30 };
+/* Global text transform: bigger, bolder, 5px top + 10px left padding. */
+const TEXT = { scale: 1.25, bold: true, padTop: 5, padLeft: 10 };
 
 function field(x, y, fontSize, fontFamily, textAlign) {
   return {
     x: x + TEXT.padLeft,
-    y,
+    y: y + TEXT.padTop,
     fontSize: Math.round(fontSize * TEXT.scale),
     fontWeight: TEXT.bold ? 'bold' : '',
     fontFamily,
