@@ -1,0 +1,198 @@
+const receiptFields = {
+  // Canvas Resolution Details
+  canvas: {
+    width: 1331,
+    height: 784
+  },
+
+  // Dynamic Text Fields Coordinates & Metadata
+  fields: {
+    // ------------------------------------------------------------------------
+    // HEADER METADATA
+    // ------------------------------------------------------------------------
+    date: {
+      x: 1020,
+      y: 240,
+      fontSize: 22,
+      fontFamily: "Arial, sans-serif",
+      textAlign: "left",
+      description: "Receipt issue date (e.g., '24/09/2026')"
+    },
+    receivedFrom: {
+      x: 310,
+      y: 328,
+      fontSize: 22,
+      fontFamily: "Arial, sans-serif",
+      textAlign: "left",
+      description: "Full name of the student or parent"
+    },
+    studentClass: {
+      x: 160,
+      y: 382,
+      fontSize: 20,
+      fontFamily: "Arial, sans-serif",
+      textAlign: "left",
+      description: "Class / Grade level (e.g., 'Primary 3')"
+    },
+    term: {
+      x: 780,
+      y: 382,
+      fontSize: 20,
+      fontFamily: "Arial, sans-serif",
+      textAlign: "left",
+      description: "Academic Term (e.g., '1st Term')"
+    },
+
+    // ------------------------------------------------------------------------
+    // TABLE BREAKDOWN ROWS (Amounts in ₦)
+    // ------------------------------------------------------------------------
+    // Row 1: School Fees (70%)
+    feesPaid: {
+      x: 765,
+      y: 500,
+      fontSize: 20,
+      fontFamily: "Courier New, monospace",
+      textAlign: "right",
+      description: "70% of payment allocated to School Fees"
+    },
+    feesTotalCost: {
+      x: 980,
+      y: 500,
+      fontSize: 20,
+      fontFamily: "Courier New, monospace",
+      textAlign: "right",
+      description: "Total billed cost for School Fees"
+    },
+    feesBalanceDue: {
+      x: 1220,
+      y: 500,
+      fontSize: 20,
+      fontFamily: "Courier New, monospace",
+      textAlign: "right",
+      description: "Remaining balance for School Fees"
+    },
+
+    // Row 2: School Uniform (20%)
+    uniformPaid: {
+      x: 765,
+      y: 542,
+      fontSize: 20,
+      fontFamily: "Courier New, monospace",
+      textAlign: "right",
+      description: "20% of payment allocated to Uniform"
+    },
+    uniformTotalCost: {
+      x: 980,
+      y: 542,
+      fontSize: 20,
+      fontFamily: "Courier New, monospace",
+      textAlign: "right",
+      description: "Total price of Uniform"
+    },
+    uniformBalanceDue: {
+      x: 1220,
+      y: 542,
+      fontSize: 20,
+      fontFamily: "Courier New, monospace",
+      textAlign: "right",
+      description: "Remaining balance for Uniform"
+    },
+
+    // Row 3: Textbooks & Books (10%)
+    booksPaid: {
+      x: 765,
+      y: 584,
+      fontSize: 20,
+      fontFamily: "Courier New, monospace",
+      textAlign: "right",
+      description: "10% of payment allocated to Books"
+    },
+    booksTotalCost: {
+      x: 980,
+      y: 584,
+      fontSize: 20,
+      fontFamily: "Courier New, monospace",
+      textAlign: "right",
+      description: "Total price of Textbooks & Books"
+    },
+    booksBalanceDue: {
+      x: 1220,
+      y: 584,
+      fontSize: 20,
+      fontFamily: "Courier New, monospace",
+      textAlign: "right",
+      description: "Remaining balance for Books"
+    },
+
+    // Row 4: Table Totals Summary
+    totalPaidRow: {
+      x: 765,
+      y: 626,
+      fontSize: 20,
+      fontFamily: "Courier New, monospace",
+      textAlign: "right",
+      description: "Sum of amount paid across all categories"
+    },
+    totalCostRow: {
+      x: 980,
+      y: 626,
+      fontSize: 20,
+      fontFamily: "Courier New, monospace",
+      textAlign: "right",
+      description: "Sum of total costs across all categories"
+    },
+    totalBalanceRow: {
+      x: 1220,
+      y: 626,
+      fontSize: 20,
+      fontFamily: "Courier New, monospace",
+      textAlign: "right",
+      description: "Sum of balances due across all categories"
+    },
+
+    // ------------------------------------------------------------------------
+    // FOOTER SUMMARY FIELDS
+    // ------------------------------------------------------------------------
+    sumInWords: {
+      x: 420,
+      y: 700,
+      fontSize: 18,
+      fontFamily: "Arial, sans-serif",
+      textAlign: "left",
+      description: "Total amount paid written in words"
+    },
+    footerTotalPaid: {
+      x: 430,
+      y: 760,
+      fontSize: 22,
+      fontFamily: "Arial, sans-serif",
+      textAlign: "right",
+      description: "Grand total amount paid (e.g., '100,000.00')"
+    },
+    footerTotalBalance: {
+      x: 1150,
+      y: 760,
+      fontSize: 22,
+      fontFamily: "Arial, sans-serif",
+      textAlign: "right",
+      description: "Grand total balance remaining to be added"
+    }
+  }
+};
+
+//sample
+function drawReceiptData(ctx, data) {
+  // Loop through defined coordinates and render text dynamically
+  for (const [key, field] of Object.entries(receiptFields.fields)) {
+    if (data[key] !== undefined) {
+      ctx.font = `${field.fontSize}px ${field.fontFamily}`;
+      ctx.fillStyle = "#000000";
+      ctx.textAlign = field.textAlign;
+      ctx.fillText(data[key], field.x, field.y);
+    }
+  }
+}
+
+
+Data JSON URL:
+https://sheet.spacet.me/1Yxh7vhxyQI2HisBqNbck8mFfoAAwBH0_VJJfyJwVpV4/Sheet1.json

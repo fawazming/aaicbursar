@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAIS Receipt</title>
+    <link rel="stylesheet" href="https://aaisfin.sgm.ng/assets/water.css">
+</head>
+
+<body>
+    <center>
+        <h1>AAIS Receipt <a href="#ppayment">Past Payment</a></h1>
+    </center>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center;">
+        <iframe
+            src="https://docs.google.com/forms/d/e/1FAIpQLSfI32b9k95KfTymzmq9MUSCjzLsWbw-oQ5CjJssWX0QJHJRVg/viewform?usp=header"
+            width="640" height="821" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+            <div id="ppayment">
+                <h2>List of Past payments</h2>
+                <main id="app">
+
+                </main>
+            </div>
+    </div>
+    <div id="jargons" style="display: none;">
+        <script src="https://aaisfin.sgm.ng/assets/mmm.js"></script>
+        <script>
+            function sshot() {
+                html2canvas(document.querySelector('main')).then(canvas => {
+                    let a = document.createElement("a");
+                    a.download = "AAIS_rec.png";
+                    a.href = canvas.toDataURL("image/png");
+                    a.click(); // MAY NOT ALWAYS WORK!
+                });
+            }
+        </script>
+    </div>
+    <script src="https://aaisfin.sgm.ng/assets/numtowords.js"></script>
+    <script>
+        // document.querySelector('#newre').addEventListener('click', () => {
+        //     // e.preventDefault();
+        //     let name = document.querySelector('#name').value
+        //     let payment = document.querySelector('#payment').value
+        //     let paid = document.querySelector('#paid').value
+        //     let balance = document.querySelector('#balance').value
+        //     // let dater = document.querySelector('#dater').value
+
+        //     printRec(name, payment, paid, balance);
+        // })
+
+        const data = { "rows": [] }
+        function popu() {
+            let output = '<ul id="pastrec">';
+            for (let i = 0; i < data.rows.length; i++) {
+                output += `<li><a onclick="printRec('${data.rows[i].Name}', '${data.rows[i]['Payment for']}', '${data.rows[i].Paid}', '${data.rows[i].Balance}')">${data.rows[i].Name}, with payment for ${data.rows[i]['Payment for']}</a></li>`;
+            }
+            output += `</ul>`
+            document.querySelector('#app').innerHTML = output;
+        }
+        window.addEventListener('load', (() => {
+            const endpoint = `https://sheet.spacet.me/1gDllPdcHsFwgpFYmQDWsfpIDSyNtf7jVDcQ6hNqTHI4/FormRec.json`
+            async function fetchD() {
+                await fetch(endpoint)
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error('Unable to load data from ' + endpoint)
+                        }
+                        return response.json()
+                    })
+                    .then((dat) => {
+                        const [header, ...rows] = dat.values
+                        const ndata = rows.map(row => {
+                            const entries = header.map((key, i) => [key, row[i]])
+                            return Object.fromEntries(entries)
+                        })
+                        data.rows = ndata;
+
+                        // console.log(data.rows);
+                        popu()
+                        return ndata;
+                    })
+                    .catch((e) => {
+                        console.error(e);
+                    });
+            }
+            fetchD()
+
+            // console.log(tempd)
+        }))
+
+        function printRec(name, payment, paid, balance) {
+
+            const formatter = new Intl.NumberFormat('en-US');
+            console.log(name, payment, paid, balance)
+            var mywindow = window.open('', 'PRINT');
+
+            mywindow.document.write(`<html><head><title>AAIS Rec</title><link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">`);
+            mywindow.document.write('</head><body >');
+            mywindow.document.write(`
+                <main onclick="sshot()" style="font-family: sans-serif; font-weight: 900;width: 696px; height: 410px; line-height: 15px;">
+                    <img src="https://aaisfin.sgm.ng/assets/aaisRec.jpg" alt="" style="position: absolute; z-index: -1;" class="">
+                        <p style="position: absolute; left: 550px; top: 92px; font-size: 1.3rem;">${datee()}</p>
+                        <p style="position: absolute; left: 210px; top: 142px; font-size: 1.3rem; text-transform: uppercase;">${name}</p>
+                        <p style="position: absolute; left: 190px; top: 187px; font-size: 1.3rem; text-transform: capitalize;">${payment}</p>
+                        <p style="position: absolute; left: 40px; top: 222px; font-size: 1.2rem; width: 640px; text-transform: capitalize; line-height: 2.2rem;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; ${convert(paid, 'NGN')} </p>
+                        <p style="position: absolute; left: 50px; top: 334px; font-size: 2.4rem; text-transform: capitalize;">&#x20a6;${formatter.format(paid)}</p>
+                        <p style="position: absolute; left: 400px; top: 334px; font-size: 2.4rem; text-transform: capitalize;">&#x20a6;${formatter.format(balance)}</p>
+                </main>
+                `);
+            mywindow.document.write(document.querySelector('#jargons').innerHTML);
+            mywindow.document.write(`</body></html>`);
+
+
+
+            mywindow.document.close(); // necessary for IE >= 10
+            mywindow.focus(); // necessary for IE >= 10*/
+            return true;
+        }
+        // https://docs.google.com/spreadsheets/d/1aSz8kFOwFnnLyM__73ZmV109nEO9A-tzjW3jkDOpPL4/edit?usp=sharing
+        // https://docs.google.com/forms/d/e/1FAIpQLSfyzneNGMB-Sxf8dAqe5wXS_e5rwRDLlGLFOS3OQB06iNm6Sg/viewform?usp=header
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AAIS Receipts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@400..700&family=Pacifico&family=Sacramento&family=Allura&family=Alex+Brush&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">AAIS</span>
+      <div>
+        <h1>Receipts</h1>
+        <p id="subtitle">Loading students…</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <label class="search">
+        <input id="search" type="search" placeholder="Search student…" autocomplete="off">
+      </label>
+      <button id="reload" class="btn ghost" type="button" title="Reload data from sheet">Reload</button>
+      <button id="openSettings" class="btn primary" type="button">Settings</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="status" class="status">Loading data…</section>
+    <section id="grid" class="grid" aria-live="polite"></section>
+  </main>
+
+  <!-- ================= RECEIPT / SHARE SHEET ================= -->
+  <div class="overlay" id="receiptOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="receiptName">
+      <div class="sheet-head">
+        <div>
+          <h2 id="receiptName">Student</h2>
+          <p id="receiptMeta" class="muted"></p>
+        </div>
+        <button class="icon-btn" data-close="receiptOverlay" type="button" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="sheet-body">
+        <div class="receipt-stage">
+          <canvas id="receiptCanvas" width="1024" height="603"></canvas>
+        </div>
+
+        <aside class="share-panel">
+          <label class="field">
+            <span>Receipt date</span>
+            <input id="receiptDate" type="date">
+          </label>
+
+          <div class="field">
+            <span>Guardian contact (saved per student)</span>
+            <div class="contact-row">
+              <input id="guardianPhone" type="tel" placeholder="Phone e.g. 2348012345678">
+              <input id="guardianEmail" type="email" placeholder="Email">
+            </div>
+          </div>
+
+          <label class="field">
+            <span>Message</span>
+            <textarea id="shareMessage" rows="4"></textarea>
+          </label>
+
+          <div class="share-actions">
+            <button class="btn primary block" id="shareNative" type="button">Share receipt…</button>
+            <div class="btn-row">
+              <button class="btn wa" id="shareWhatsapp" type="button">WhatsApp</button>
+              <button class="btn" id="shareEmail" type="button">Email</button>
+            </div>
+            <div class="btn-row">
+              <button class="btn ghost" id="downloadPng" type="button">Download PNG</button>
+              <button class="btn ghost" id="copyImage" type="button">Copy image</button>
+              <button class="btn ghost" id="printReceipt" type="button">Print</button>
+            </div>
+          </div>
+          <p id="shareHint" class="hint"></p>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SETTINGS ================= -->
+  <div class="overlay" id="settingsOverlay" hidden>
+    <div class="sheet narrow" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="sheet-head">
+        <h2 id="settingsTitle">Settings</h2>
+        <button class="icon-btn" data-close="settingsOverlay" type="button" aria-label="Close">&times;</button>
+      </div>
+
+      <div class="sheet-body column">
+        <label class="field">
+          <span>Data JSON URL</span>
+          <input id="setJsonUrl" type="url" spellcheck="false">
+          <small class="muted">Google Sheet published as JSON (the sheet.spacet.me endpoint).</small>
+        </label>
+
+        <div class="two-col">
+          <label class="field">
+            <span>Class</span>
+            <input id="setClass" list="classList" placeholder="e.g. Primary 3">
+            <datalist id="classList">
+              <option>Nursery 1</option>
+              <option>Nursery 2</option>
+              <option>Primary 1</option>
+              <option>Primary 2</option>
+              <option>Primary 3</option>
+              <option>Primary 4</option>
+              <option>Primary 5</option>
+              <option>Primary 6</option>
+              <option>JSS 1</option>
+              <option>JSS 2</option>
+              <option>JSS 3</option>
+            </datalist>
+          </label>
+          <label class="field">
+            <span>Term</span>
+            <input id="setTerm" list="termList" placeholder="e.g. 1st Term">
+            <datalist id="termList">
+              <option>1st Term</option>
+              <option>2nd Term</option>
+              <option>3rd Term</option>
+            </datalist>
+          </label>
+        </div>
+
+        <fieldset class="group">
+          <legend>Signature</legend>
+          <div class="two-col">
+            <label class="field">
+              <span>Signature text</span>
+              <input id="setSign" placeholder="e.g. AAIS Bursar">
+            </label>
+            <label class="field">
+              <span>Cursive font</span>
+              <select id="setSignFont"></select>
+            </label>
+          </div>
+          <div class="three-col">
+            <label class="field"><span>Size</span><input id="setSignSize" type="number" min="10" max="120"></label>
+            <label class="field"><span>X</span><input id="setSignX" type="number"></label>
+            <label class="field"><span>Y</span><input id="setSignY" type="number"></label>
+          </div>
+          <p class="sign-preview">Preview: <span id="signPreview"></span></p>
+        </fieldset>
+
+        <div class="settings-actions">
+          <button class="btn ghost" id="resetSettings" type="button">Reset defaults</button>
+          <button class="btn primary" id="saveSettings" type="button">Save settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
