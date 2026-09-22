@@ -4,7 +4,7 @@
    ========================================================================= */
 
 const LS = {
-  settings: 'aaic_settings_v2',
+  settings: 'aaic_settings_v3',
   contacts: 'aaic_contacts_v1'
 };
 
@@ -14,9 +14,9 @@ const DEFAULT_SETTINGS = {
   term: '1st Term',
   signature: 'AAIS Bursar',
   signatureFont: "'Great Vibes', cursive",
-  signatureSize: 24,
-  signatureX: 800,
-  signatureY: 560
+  signatureSize: 18,
+  signatureX: 0,
+  signatureY: 0
 };
 
 const CURSIVE_FONTS = [
@@ -30,12 +30,13 @@ const CURSIVE_FONTS = [
 
 /* -------- Calibrated field map ----------------------------------------- */
 /* Global text transform: bigger, bolder, 5px top + 10px left padding. */
-const TEXT = { scale: 1.25, bold: true, padTop: 5, padLeft: 10 };
+const TEXT = { scale: 1.25, bold: true, padTop: 9, padLeft: 50 };
 
-function field(x, y, fontSize, fontFamily, textAlign) {
+function field(x, y, fontSize, fontFamily, textAlign, offset) {
+  const o = offset || {};
   return {
-    x: x + TEXT.padLeft,
-    y: y + TEXT.padTop,
+    x: x + TEXT.padLeft + (o.dx || 0),
+    y: y + TEXT.padTop + (o.dy || 0),
     fontSize: Math.round(fontSize * TEXT.scale),
     fontWeight: TEXT.bold ? 'bold' : '',
     fontFamily,
@@ -70,13 +71,17 @@ const receiptFields = {
     totalBalance: field(895, 403, 15, 'Courier New, monospace', 'right'),
 
     /* WORDS & BOXES */
-    sumInWords: field(260, 444, 15, 'Arial, sans-serif', 'left'),
+    sumInWords: field(260, 444, 15, 'Arial, sans-serif', 'left', { dx: 40 }),
     paidBox: field(310, 501, 17, 'Arial, sans-serif', 'left'),
-    balanceBox: field(850, 501, 17, 'Arial, sans-serif', 'left')
+    balanceBox: field(850, 501, 17, 'Arial, sans-serif', 'left'),
+
+    /* CASHIER SIGNATURE (text/font come from Settings) */
+    cashierSignature: { x: 245, y: 560, fontSize: 18, fontFamily: 'Arial, sans-serif', textAlign: 'center' }
   }
 };
 
 /* -------- State --------------------------------------------------------- */
+let remoteSettings = {};   // shared defaults loaded from settings.json
 let settings = loadSettings();
 let contacts = loadJSON(LS.contacts, {});
 let students = [];
@@ -91,7 +96,17 @@ function loadJSON(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
 }
 function loadSettings() {
-  return Object.assign({}, DEFAULT_SETTINGS, loadJSON(LS.settings, {}));
+  // Precedence (low → high): built-in defaults → settings.json → this device's saved overrides
+  return Object.assign({}, DEFAULT_SETTINGS, remoteSettings, loadJSON(LS.settings, {}));
+}
+async function loadRemoteSettings() {
+  try {
+    const res = await fetch('settings.json', { cache: 'no-store' });
+    if (!res.ok) return {};
+    return await res.json();
+  } catch {
+    return {};
+  }
 }
 function saveJSON(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
@@ -246,13 +261,15 @@ async function drawReceipt(canvas, data) {
     ctx.fillText(String(val), f.x, f.y);
   }
 
-  // Signature (cursive, configurable)
+  // Cashier signature — position/alignment from the field map,
+  // text + cursive font + size from Settings.
+  const sig = receiptFields.fields.cashierSignature;
   if (settings.signature) {
     try { await document.fonts.load(`${settings.signatureSize}px ${settings.signatureFont}`); } catch { }
     ctx.font = `${settings.signatureSize}px ${settings.signatureFont}`;
     ctx.fillStyle = '#0f2c4d';
-    ctx.textAlign = 'right';
-    ctx.fillText(settings.signature, settings.signatureX, settings.signatureY);
+    ctx.textAlign = sig.textAlign || 'center';
+    ctx.fillText(settings.signature, sig.x + (+settings.signatureX || 0), sig.y + (+settings.signatureY || 0));
   }
 }
 
@@ -543,6 +560,9 @@ $('#copyImage').addEventListener('click', copyImage);
 $('#printReceipt').addEventListener('click', printReceipt);
 
 /* -------- Boot ---------------------------------------------------------- */
-window.addEventListener('load', () => {
-  document.fonts.ready.then(loadData);
+window.addEventListener('load', async () => {
+  remoteSettings = await loadRemoteSettings();
+  settings = loadSettings();
+  await document.fonts.ready;
+  loadData();
 });
